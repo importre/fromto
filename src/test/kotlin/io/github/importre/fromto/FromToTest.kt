@@ -63,9 +63,11 @@ class FromToTest {
         val count = CountDownLatch(1)
 
         val action = FtAction.Builder<Int>()
-                .from(Observable.create<Int> { 1 / 0 }
-                        .subscribeOn(Schedulers.newThread())
-                )
+                .from(Observable.create<Int> {
+                    val a: Int? = null
+                    println(a.toString())
+                    a!!
+                }.subscribeOn(Schedulers.newThread()))
                 .to(intSubject, { })
                 .error(errorSubject, { count.countDown() })
                 .build()
