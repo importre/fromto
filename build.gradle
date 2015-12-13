@@ -19,7 +19,7 @@ apply plugin: 'maven-publish'
 apply plugin: 'signing'
 
 def FromToGroupId = 'io.github.importre'
-def FromToVersion = '0.1.0'
+def FromToVersion = '0.2.0'
 def FromToArtifact = 'fromto'
 def FromToUrl = 'https://github.com/importre/fromto'
 
