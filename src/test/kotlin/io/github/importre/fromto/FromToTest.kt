@@ -28,8 +28,21 @@ class FromToTest {
                 .to(toSubject, {})
                 .error(errorSubject, {})
                 .build()
-        val fromTo = FromTo.create(action)
-        assertEquals(1, fromTo.actions.size)
+        val fromTo1 = FromTo.create(action)
+        assertEquals(1, fromTo1.actions.size)
+
+        val actions = listOf(FtAction.Builder<Int>()
+                .from(Observable.just(1))
+                .to(toSubject, {})
+                .error(errorSubject, {})
+                .build(),
+                FtAction.Builder<Int>()
+                        .from(Observable.just(1))
+                        .to(toSubject, {})
+                        .error(errorSubject, {})
+                        .build())
+        val fromTo2 = FromTo.create(actions)
+        assertEquals(actions.size, fromTo2.actions.size)
     }
 
     @Test
