@@ -12,8 +12,10 @@ import kotlin.test.assertTrue
 
 class FromToTest {
 
-    val intSubject = PublishSubject.create<Int>()
+    val toSubject = PublishSubject.create<Int>()
+    val finishSubject = PublishSubject.create<Unit>()
     val errorSubject = PublishSubject.create<Throwable>()
+
     val view = object : FtView {
         override fun showLoading(show: Boolean) {
         }
@@ -23,7 +25,7 @@ class FromToTest {
     fun ShouldBeInitialized() {
         val action = FtAction.Builder<Int>()
                 .from(Observable.just(1))
-                .to(intSubject, {})
+                .to(toSubject, {})
                 .error(errorSubject, {})
                 .build()
         val fromTo = FromTo.create(action)
@@ -36,17 +38,38 @@ class FromToTest {
 
         val action1 = FtAction.Builder<Int>()
                 .from(Observable.just(1).subscribeOn(Schedulers.newThread()))
-                .to(intSubject, { count.countDown() })
+                .to(toSubject, { assertEquals(1, it); count.countDown() })
                 .error(errorSubject, {})
                 .build()
 
         val action2 = FtAction.Builder<Int>()
                 .from(Observable.just(1).subscribeOn(Schedulers.newThread()))
-                .to(intSubject, { count.countDown() })
+                .to(toSubject, { assertEquals(1, it); count.countDown() })
                 .error(errorSubject, {})
                 .build()
 
         val fromTo = FromTo.create(action1, action2)
+        fromTo.attach(view).execute()
+        assertTrue(fromTo.isLoading())
+
+        count.await(1000, TimeUnit.MILLISECONDS)
+        assertEquals(0, count.count)
+
+        fromTo.detach()
+        assertFalse(fromTo.isLoading())
+    }
+
+    @Test
+    fun ShouldBeSuccessfulWithFinish() {
+        val count = CountDownLatch(2)
+
+        val action = FtAction.Builder<Int>()
+                .from(Observable.just(1).subscribeOn(Schedulers.newThread()))
+                .to(toSubject, { assertEquals(1, it); count.countDown() })
+                .finish(finishSubject, { count.countDown() })
+                .build()
+
+        val fromTo = FromTo.create(action)
         fromTo.attach(view).execute()
         assertTrue(fromTo.isLoading())
 
@@ -66,7 +89,7 @@ class FromToTest {
                     val i: Int? = null
                     it.onNext(i!!)
                 }.subscribeOn(Schedulers.newThread()))
-                .to(intSubject, {})
+                .to(toSubject, {})
                 .error(errorSubject, { count.countDown() })
                 .build()
 

@@ -12,11 +12,14 @@ public class FtAction<T> private constructor() {
     private lateinit var toSubject: Subject<T, T>
     private lateinit var dataView: ((T) -> Unit)
 
+    private var finishView: (() -> Unit)? = null
+    private var finishSubject: Subject<Unit, Unit>? = null
     private var errorSubject: Subject<Throwable, Throwable>? = null
     private var errorView: ((Throwable) -> Unit)? = null
 
     private var fromSubscription: Subscription? = null
     private var toSubscription: Subscription? = null
+    private var finishSubscription: Subscription? = null
     private var errorSubscription: Subscription? = null
 
     private var running: AtomicBoolean = AtomicBoolean(false)
@@ -26,14 +29,20 @@ public class FtAction<T> private constructor() {
 
     private fun init() {
         toSubscription?.unsubscribe()
-        toSubscription = toSubject.distinctUntilChanged().subscribe({
+        toSubscription = toSubject.subscribe({
             dataView.invoke(it)
         }, {
             errorSubject?.onNext(it)
         })
 
+        finishSubscription?.unsubscribe()
+        finishSubscription = finishSubject?.subscribe({
+            finishView?.invoke()
+        }, {
+        })
+
         errorSubscription?.unsubscribe()
-        errorSubscription = errorSubject?.distinctUntilChanged()?.subscribe({
+        errorSubscription = errorSubject?.subscribe({
             errorView?.invoke(it)
         }, {
             errorView?.invoke(it)
@@ -51,6 +60,7 @@ public class FtAction<T> private constructor() {
             errorSubject?.onError(it)
             finished(fromTo)
         }, {
+            finishSubject?.onNext(Unit)
             finished(fromTo)
         })
     }
@@ -69,9 +79,11 @@ public class FtAction<T> private constructor() {
     class Builder<T>() {
 
         private var dataView: ((T) -> Unit)? = null
+        private var finishView: (() -> Unit)? = null
         private var errorView: ((Throwable) -> Unit)? = null
         private var fromObservable: Observable<T>? = null
         private var toSubject: Subject<T, T>? = null
+        private var finishSubject: Subject<Unit, Unit>? = null
         private var errorSubject: Subject<Throwable, Throwable>? = null
 
         fun from(fromObservable: Observable<T>): Builder<T> {
@@ -83,6 +95,13 @@ public class FtAction<T> private constructor() {
                dataView: ((T) -> Unit)): Builder<T> {
             this.toSubject = toSubject
             this.dataView = dataView
+            return this
+        }
+
+        fun finish(finishSubject: Subject<Unit, Unit>,
+                   finishView: (() -> Unit)): Builder<T> {
+            this.finishSubject = finishSubject
+            this.finishView = finishView
             return this
         }
 
@@ -114,6 +133,8 @@ public class FtAction<T> private constructor() {
                 action.toSubject = toSubject as Subject<T, T>
             }
 
+            action.finishView = finishView
+            action.finishSubject = finishSubject as? Subject<Unit, Unit>
             action.errorView = errorView
             action.errorSubject = errorSubject as? Subject<Throwable, Throwable>
             action.init()
