@@ -26,14 +26,13 @@ class FromToTest {
                 .to(intSubject, {})
                 .error(errorSubject, {})
                 .build()
-        val fromto = FromTo.create(action)
-        assertEquals(1, fromto.actions.size)
+        val fromTo = FromTo.create(action)
+        assertEquals(1, fromTo.actions.size)
     }
 
     @Test
     fun ShouldBeSuccessful() {
-        val size = 2
-        val count = CountDownLatch(size)
+        val count = CountDownLatch(2)
 
         val action1 = FtAction.Builder<Int>()
                 .from(Observable.just(1).subscribeOn(Schedulers.newThread()))
@@ -47,15 +46,15 @@ class FromToTest {
                 .error(errorSubject, {})
                 .build()
 
-        val fromto = FromTo.create(action1, action2)
-        fromto.attach(view).execute()
-        assertTrue(fromto.isLoading())
+        val fromTo = FromTo.create(action1, action2)
+        fromTo.attach(view).execute()
+        assertTrue(fromTo.isLoading())
 
         count.await(1000, TimeUnit.MILLISECONDS)
         assertEquals(0, count.count)
 
-        fromto.detach()
-        assertFalse(fromto.isLoading())
+        fromTo.detach()
+        assertFalse(fromTo.isLoading())
     }
 
     @Test
@@ -64,22 +63,21 @@ class FromToTest {
 
         val action = FtAction.Builder<Int>()
                 .from(Observable.create<Int> {
-                    val a: Int? = null
-                    println(a.toString())
-                    a!!
+                    val i: Int? = null
+                    it.onNext(i!!)
                 }.subscribeOn(Schedulers.newThread()))
-                .to(intSubject, { })
+                .to(intSubject, {})
                 .error(errorSubject, { count.countDown() })
                 .build()
 
-        val fromto = FromTo.create(action)
-        fromto.attach(view).execute()
-        assertTrue(fromto.isLoading())
+        val fromTo = FromTo.create(action)
+        fromTo.attach(view).execute()
+        assertTrue(fromTo.isLoading())
 
         count.await(1000, TimeUnit.MILLISECONDS)
         assertEquals(0, count.count)
 
-        fromto.detach()
-        assertFalse(fromto.isLoading())
+        fromTo.detach()
+        assertFalse(fromTo.isLoading())
     }
 }
