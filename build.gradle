@@ -1,8 +1,3 @@
-group 'io.github.importre'
-version '0.1.0'
-
-apply plugin: "kotlin"
-
 buildscript {
     ext.kotlin_version = '1.0.0-beta-3595'
 
@@ -14,6 +9,53 @@ buildscript {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
+
+plugins {
+    id 'com.jfrog.bintray' version '1.4'
+}
+
+apply plugin: 'kotlin'
+apply plugin: 'maven'
+apply plugin: 'maven-publish'
+apply plugin: 'signing'
+
+def FromToGroupId = 'io.github.importre'
+def FromToVersion = '0.1.0'
+def FromToArtifact = 'fromto'
+def FromToUrl = 'https://github.com/importre/fromto'
+
+publishing {
+    publications {
+        FromToPublish(MavenPublication) {
+            from components.java
+            groupId FromToGroupId
+            artifactId FromToArtifact
+            version FromToVersion
+        }
+    }
+}
+
+bintray {
+    user = project.hasProperty("user") ? project.user : ""
+    key = project.hasProperty("key") ? project.key : ""
+    publications = ['FromToPublish']
+
+    pkg {
+        repo = 'maven'
+        name = FromToArtifact
+        licenses = ['Apache-2.0']
+        vcsUrl = "${FromToUrl}.git"
+        publicDownloadNumbers = true
+
+        filesSpec {
+            from 'output/io/github/importre/fromto'
+            into '.'
+        }
+    }
+}
+
+group FromToGroupId
+version FromToVersion
 
 sourceSets {
     main.java.srcDirs += 'src/main/kotlin'
@@ -29,3 +71,44 @@ dependencies {
 
     testCompile 'junit:junit:4.12'
 }
+
+
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            beforeDeployment { MavenDeployment deployment ->
+                signing.signPom(deployment)
+            }
+
+            repository(url: uri('./output'))
+
+            pom.project {
+                name FromToArtifact
+                packaging 'jar'
+                url FromToUrl
+
+                scm {
+                    connection "scm:git:${FromToUrl}.git"
+                    developerConnection "scm:git:${FromToUrl}.git"
+                    url FromToUrl
+                }
+
+                licenses {
+                    license {
+                        name 'The Apache License, Version 2.0'
+                        url 'http://www.apache.org/licenses/LICENSE-2.0.txt'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id 'importre'
+                        name 'Jaewe Heo'
+                        email 'jaeweheo@gmail.com'
+                    }
+                }
+            }
+        }
+    }
+}
+
