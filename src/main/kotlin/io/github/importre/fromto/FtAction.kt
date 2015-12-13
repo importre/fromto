@@ -5,6 +5,13 @@ import rx.Subscription
 import rx.subjects.Subject
 import java.util.concurrent.atomic.AtomicBoolean
 
+/**
+ * A [FtAction] executes [rx.Observable] and notifies [rx.Subject] of the result.
+ *
+ * @author [Jaewe Heo](http://import.re)
+ *
+ * @param T represents the action&apos;s result data
+ */
 public class FtAction<T> private constructor() {
 
     private lateinit var fromObservable: Observable<T>
@@ -25,6 +32,9 @@ public class FtAction<T> private constructor() {
     private var running: AtomicBoolean = AtomicBoolean(false)
         private set
 
+    /**
+     * @return true if it is running, otherwise false
+     */
     public fun isRunning() = running.get()
 
     private fun init() {
@@ -76,7 +86,10 @@ public class FtAction<T> private constructor() {
         finished(fromTo)
     }
 
-    class Builder<T>() {
+    /**
+     *  [FtAction]&apos;s builder.
+     */
+    public class Builder<T>() {
 
         private var dataView: ((T) -> Unit)? = null
         private var finishView: (() -> Unit)? = null
@@ -86,33 +99,68 @@ public class FtAction<T> private constructor() {
         private var finishSubject: Subject<Unit, Unit>? = null
         private var errorSubject: Subject<Throwable, Throwable>? = null
 
-        fun from(fromObservable: Observable<T>): Builder<T> {
+        /**
+         * Sets observable that will be subscribed. It is must be called.
+         *
+         * @param fromObservable
+         * @return [FtAction.Builder]
+         */
+        public fun from(fromObservable: Observable<T>): Builder<T> {
             this.fromObservable = fromObservable
             return this
         }
 
-        fun to(toSubject: Subject<T, T>,
-               dataView: ((T) -> Unit)): Builder<T> {
+        /**
+         * Sets subject and view of `to`. It is must be called.
+         * [dataView] will be invoked with the result via [toSubject].`onNext()`
+         *
+         * @param toSubject
+         * @param dataView
+         * @return [FtAction.Builder]
+         */
+        public fun to(toSubject: Subject<T, T>,
+                      dataView: ((T) -> Unit)): Builder<T> {
             this.toSubject = toSubject
             this.dataView = dataView
             return this
         }
 
-        fun finish(finishSubject: Subject<Unit, Unit>,
-                   finishView: (() -> Unit)): Builder<T> {
+        /**
+         * Sets subject and view of `finish`.
+         * [finishView] will be invoked with the result via [finishSubject].`onNext()`
+         *
+         * @param finishSubject
+         * @param finishView
+         * @return [FtAction.Builder]
+         */
+        public fun finish(finishSubject: Subject<Unit, Unit>,
+                          finishView: (() -> Unit)): Builder<T> {
             this.finishSubject = finishSubject
             this.finishView = finishView
             return this
         }
 
-        fun error(errorSubject: Subject<Throwable, Throwable>,
-                  errorView: ((Throwable) -> Unit)): Builder<T> {
+        /**
+         * Sets subject and view of `error`.
+         * [errorView] will be invoked with the result via [errorSubject].`onNext()`
+         *
+         * @param errorSubject
+         * @param errorView
+         * @return [FtAction.Builder]
+         */
+        public fun error(errorSubject: Subject<Throwable, Throwable>,
+                         errorView: ((Throwable) -> Unit)): Builder<T> {
             this.errorSubject = errorSubject
             this.errorView = errorView
             return this
         }
 
-        fun build(): FtAction<T> {
+        /**
+         * Constructs a [FtAction] with the current attributes.
+         *
+         * @return [FtAction]
+         */
+        public fun build(): FtAction<T> {
             val action = FtAction<T>()
 
             if (fromObservable == null) {

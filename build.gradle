@@ -1,5 +1,6 @@
 buildscript {
     ext.kotlin_version = '1.0.0-beta-3595'
+    ext.dokka_version = '0.9.3'
 
     repositories {
         jcenter()
@@ -7,6 +8,7 @@ buildscript {
 
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "org.jetbrains.dokka:dokka-gradle-plugin:$dokka_version"
     }
 }
 
@@ -16,6 +18,7 @@ plugins {
 
 apply plugin: 'kotlin'
 apply plugin: 'maven-publish'
+apply plugin: 'org.jetbrains.dokka'
 apply plugin: 'signing'
 
 def FromToGroupId = 'io.github.importre'
@@ -28,9 +31,9 @@ task sourcesJar(type: Jar, dependsOn: classes) {
     from sourceSets.main.allSource
 }
 
-task javadocJar(type: Jar, dependsOn: javadoc) {
+task javadocJar(type: Jar, dependsOn: 'dokka') {
     classifier = 'javadoc'
-    from javadoc.destinationDir
+    from 'build/dokka'
 }
 
 artifacts {
@@ -56,7 +59,7 @@ bintray {
     key = project.hasProperty("key") ? project.key : ""
     publications = ['FromToPublish']
     publish = true
-    dryRun = false
+    //dryRun = true
 
     pkg {
         repo = 'maven'
