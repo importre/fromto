@@ -12,6 +12,9 @@ package io.github.importre.fromto
  */
 public class FromTo private constructor(val actions: List<FtAction<*>>) {
 
+    /**
+     * @see [FromTo]
+     */
     companion object {
         /**
          * Creates a [FromTo] with [FtAction]s.
