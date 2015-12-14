@@ -72,7 +72,7 @@ public class FtAction<T> private constructor() {
 
     private fun finished(fromTo: FromTo) {
         running.set(false)
-        fromTo.run { if (!isLoading()) view?.showLoading(false) }
+        fromTo.run { if (isLoading()) view?.showLoading(false) }
     }
 
     fun unsubscribe(fromTo: FromTo) {
