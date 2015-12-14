@@ -8,12 +8,12 @@ import java.util.concurrent.CountDownLatch
 import java.util.concurrent.TimeUnit
 import kotlin.test.assertEquals
 import kotlin.test.assertFalse
+import kotlin.test.assertNull
 import kotlin.test.assertTrue
 
 class FromToTest {
 
-    val toSubject = PublishSubject.create<Int>()
-    val finishSubject = PublishSubject.create<Unit>()
+    val toSubject = PublishSubject.create<FtResult<Int>>()
     val errorSubject = PublishSubject.create<Throwable>()
 
     val view = object : FtView {
@@ -52,13 +52,19 @@ class FromToTest {
 
         val action1 = FtAction.Builder<Int>()
                 .from(Observable.just(1).subscribeOn(Schedulers.newThread()))
-                .to({ assertEquals(1, it); count.countDown() }, toSubject)
+                .to({
+                    assertEquals(1, it.result);
+                    count.countDown()
+                }, toSubject)
                 .error({}, errorSubject)
                 .build()
 
         val action2 = FtAction.Builder<Int>()
                 .from(Observable.just(1).subscribeOn(Schedulers.newThread()))
-                .to({ assertEquals(1, it); count.countDown() }, toSubject)
+                .to({
+                    assertEquals(1, it.result);
+                    count.countDown()
+                }, toSubject)
                 .error({}, errorSubject)
                 .build()
 
@@ -74,13 +80,20 @@ class FromToTest {
     }
 
     @Test
-    fun ShouldBeSuccessfulWithFinish() {
+    fun ShouldBeSuccessfulWithComplete() {
         val count = CountDownLatch(2)
 
         val action = FtAction.Builder<Int>()
                 .from(Observable.just(1).subscribeOn(Schedulers.newThread()))
-                .to({ assertEquals(1, it); count.countDown() }, toSubject)
-                .finish({ count.countDown() }, finishSubject)
+                .to({
+                    if (it.complete) {
+                        assertNull(it.result)
+                        count.countDown()
+                    } else {
+                        assertEquals(1, it.result)
+                        count.countDown()
+                    }
+                }, toSubject, true)
                 .build()
 
         val fromTo = FromTo.create(action)

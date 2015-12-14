@@ -7,7 +7,7 @@ import rx.subjects.Subject
 import java.util.concurrent.atomic.AtomicBoolean
 
 /**
- * A [FtAction] executes [rx.Observable] and notifies [rx.Subject] of the result.
+ * A [FtAction] executes `rx.Observable` and notifies `rx.Subject` of the result.
  *
  * @author [Jaewe Heo](http://import.re)
  *
@@ -17,20 +17,17 @@ public class FtAction<T> private constructor() {
 
     private lateinit var fromObservable: Observable<T>
 
-    private lateinit var toSubject: Subject<T, T>
-    private lateinit var dataView: ((T) -> Unit)
-
-    private var finishSubject: Subject<Unit, Unit>? = null
-    private var finishView: (() -> Unit)? = null
+    private lateinit var toSubject: Subject<FtResult<T>, FtResult<T>>
+    private lateinit var dataView: ((FtResult<T>) -> Unit)
 
     private var errorSubject: Subject<Throwable, Throwable>? = null
     private var errorView: ((Throwable) -> Unit)? = null
 
     private var fromSubscription: Subscription? = null
     private var toSubscription: Subscription? = null
-    private var finishSubscription: Subscription? = null
     private var errorSubscription: Subscription? = null
 
+    private var complete: Boolean = false
     private var running: AtomicBoolean = AtomicBoolean(false)
         private set
 
@@ -47,12 +44,6 @@ public class FtAction<T> private constructor() {
             errorSubject?.onNext(it)
         })
 
-        finishSubscription?.unsubscribe()
-        finishSubscription = finishSubject?.subscribe({
-            finishView?.invoke()
-        }, {
-        })
-
         errorSubscription?.unsubscribe()
         errorSubscription = errorSubject?.subscribe({
             errorView?.invoke(it)
@@ -67,12 +58,14 @@ public class FtAction<T> private constructor() {
         running.set(true)
 
         fromSubscription = fromObservable.subscribe({
-            toSubject.onNext(it)
+            toSubject.onNext(FtResult(it, false))
         }, {
             errorSubject?.onError(it)
             finished(fromTo)
         }, {
-            finishSubject?.onNext(Unit)
+            if (complete) {
+                toSubject.onNext(FtResult(null, true))
+            }
             finished(fromTo)
         })
     }
@@ -93,12 +86,11 @@ public class FtAction<T> private constructor() {
      */
     public class Builder<T>() {
 
-        private var dataView: ((T) -> Unit)? = null
-        private var finishView: (() -> Unit)? = null
+        private var complete: Boolean = false
+        private var dataView: ((FtResult<T>) -> Unit)? = null
         private var errorView: ((Throwable) -> Unit)? = null
         private var fromObservable: Observable<T>? = null
-        private var toSubject: Subject<T, T>? = null
-        private var finishSubject: Subject<Unit, Unit>? = null
+        private var toSubject: Subject<FtResult<T>, FtResult<T>>? = null
         private var errorSubject: Subject<Throwable, Throwable>? = null
 
         /**
@@ -116,32 +108,21 @@ public class FtAction<T> private constructor() {
         /**
          * Sets subject and view of `to`. It is must be called.
          * [view] will be invoked with the result via [subject].`onNext()`
+         * If you want to receive `onComplete`, set [complete] to `true`.
+         * Then view will be invoked with `null`
          *
          * @param view
          * @param subject
+         * @param complete
          * @return [FtAction.Builder]
          */
-        public fun to(view: ((T) -> Unit),
-                      subject: Subject<T, T> = BehaviorSubject.create())
+        public fun to(view: ((FtResult<T>) -> Unit),
+                      subject: Subject<FtResult<T>, FtResult<T>> = BehaviorSubject.create(),
+                      complete: Boolean = false)
                 : Builder<T> {
             this.toSubject = subject
             this.dataView = view
-            return this
-        }
-
-        /**
-         * Sets subject and view of `finish`.
-         * [view] will be invoked with the result via [subject].`onNext()`
-         *
-         * @param view
-         * @param subject
-         * @return [FtAction.Builder]
-         */
-        public fun finish(view: (() -> Unit),
-                          subject: Subject<Unit, Unit> = BehaviorSubject.create())
-                : Builder<T> {
-            this.finishSubject = subject
-            this.finishView = view
+            this.complete = complete
             return this
         }
 
@@ -178,17 +159,16 @@ public class FtAction<T> private constructor() {
             if (dataView == null) {
                 throw NullPointerException("[FROMTO] `dataView` is null")
             } else {
-                action.dataView = dataView as (T) -> Unit
+                action.dataView = dataView as (FtResult<T>) -> Unit
             }
 
             if (toSubject == null) {
                 throw NullPointerException("[FROMTO] `to` subject is null")
             } else {
-                action.toSubject = toSubject as Subject<T, T>
+                action.toSubject = toSubject as Subject<FtResult<T>, FtResult<T>>
             }
 
-            action.finishView = finishView
-            action.finishSubject = finishSubject as? Subject<Unit, Unit>
+            action.complete = complete
             action.errorView = errorView
             action.errorSubject = errorSubject as? Subject<Throwable, Throwable>
             action.init()
