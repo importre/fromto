@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicBoolean
  *
  * @author [Jaewe Heo](http://import.re)
  *
- * @param T represents the action&apos;s result data
+ * @param T represents the action&#39;s result data
  */
 public class FtAction<T> private constructor() {
 
@@ -19,8 +19,9 @@ public class FtAction<T> private constructor() {
     private lateinit var toSubject: Subject<T, T>
     private lateinit var dataView: ((T) -> Unit)
 
-    private var finishView: (() -> Unit)? = null
     private var finishSubject: Subject<Unit, Unit>? = null
+    private var finishView: (() -> Unit)? = null
+
     private var errorSubject: Subject<Throwable, Throwable>? = null
     private var errorView: ((Throwable) -> Unit)? = null
 
@@ -87,7 +88,7 @@ public class FtAction<T> private constructor() {
     }
 
     /**
-     *  [FtAction]&apos;s builder.
+     *  [FtAction]&#39;s builder.
      */
     public class Builder<T>() {
 
