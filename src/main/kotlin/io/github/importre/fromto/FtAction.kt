@@ -101,7 +101,8 @@ public class FtAction<T> private constructor() {
         private var errorSubject: Subject<Throwable, Throwable>? = null
 
         /**
-         * Sets observable that will be subscribed. It is must be called.
+         * Sets an observable that will be subscribed by [FromTo].
+         * It is must be called.
          *
          * @param fromObservable
          * @return [FtAction.Builder]
@@ -113,46 +114,46 @@ public class FtAction<T> private constructor() {
 
         /**
          * Sets subject and view of `to`. It is must be called.
-         * [dataView] will be invoked with the result via [toSubject].`onNext()`
+         * [view] will be invoked with the result via [subject].`onNext()`
          *
-         * @param toSubject
-         * @param dataView
+         * @param view
+         * @param subject
          * @return [FtAction.Builder]
          */
-        public fun to(toSubject: Subject<T, T>,
-                      dataView: ((T) -> Unit)): Builder<T> {
-            this.toSubject = toSubject
-            this.dataView = dataView
+        public fun to(view: ((T) -> Unit),
+                      subject: Subject<T, T>): Builder<T> {
+            this.toSubject = subject
+            this.dataView = view
             return this
         }
 
         /**
          * Sets subject and view of `finish`.
-         * [finishView] will be invoked with the result via [finishSubject].`onNext()`
+         * [view] will be invoked with the result via [subject].`onNext()`
          *
-         * @param finishSubject
-         * @param finishView
+         * @param view
+         * @param subject
          * @return [FtAction.Builder]
          */
-        public fun finish(finishSubject: Subject<Unit, Unit>,
-                          finishView: (() -> Unit)): Builder<T> {
-            this.finishSubject = finishSubject
-            this.finishView = finishView
+        public fun finish(view: (() -> Unit),
+                          subject: Subject<Unit, Unit>): Builder<T> {
+            this.finishSubject = subject
+            this.finishView = view
             return this
         }
 
         /**
          * Sets subject and view of `error`.
-         * [errorView] will be invoked with the result via [errorSubject].`onNext()`
+         * [view] will be invoked with the result via [subject].`onNext()`
          *
-         * @param errorSubject
-         * @param errorView
+         * @param view
+         * @param subject
          * @return [FtAction.Builder]
          */
-        public fun error(errorSubject: Subject<Throwable, Throwable>,
-                         errorView: ((Throwable) -> Unit)): Builder<T> {
-            this.errorSubject = errorSubject
-            this.errorView = errorView
+        public fun error(view: ((Throwable) -> Unit),
+                         subject: Subject<Throwable, Throwable>): Builder<T> {
+            this.errorSubject = subject
+            this.errorView = view
             return this
         }
 
