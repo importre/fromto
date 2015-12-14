@@ -2,6 +2,7 @@ package io.github.importre.fromto
 
 import rx.Observable
 import rx.Subscription
+import rx.subjects.BehaviorSubject
 import rx.subjects.Subject
 import java.util.concurrent.atomic.AtomicBoolean
 
@@ -121,7 +122,8 @@ public class FtAction<T> private constructor() {
          * @return [FtAction.Builder]
          */
         public fun to(view: ((T) -> Unit),
-                      subject: Subject<T, T>): Builder<T> {
+                      subject: Subject<T, T> = BehaviorSubject.create())
+                : Builder<T> {
             this.toSubject = subject
             this.dataView = view
             return this
@@ -136,7 +138,8 @@ public class FtAction<T> private constructor() {
          * @return [FtAction.Builder]
          */
         public fun finish(view: (() -> Unit),
-                          subject: Subject<Unit, Unit>): Builder<T> {
+                          subject: Subject<Unit, Unit> = BehaviorSubject.create())
+                : Builder<T> {
             this.finishSubject = subject
             this.finishView = view
             return this
@@ -151,7 +154,8 @@ public class FtAction<T> private constructor() {
          * @return [FtAction.Builder]
          */
         public fun error(view: ((Throwable) -> Unit),
-                         subject: Subject<Throwable, Throwable>): Builder<T> {
+                         subject: Subject<Throwable, Throwable> = BehaviorSubject.create())
+                : Builder<T> {
             this.errorSubject = subject
             this.errorView = view
             return this
