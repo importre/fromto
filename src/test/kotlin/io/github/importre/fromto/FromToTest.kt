@@ -25,21 +25,22 @@ class FromToTest {
     fun ShouldBeInitialized() {
         val action = FtAction.Builder<Int>()
                 .from(Observable.just(1))
-                .to(toSubject, {})
-                .error(errorSubject, {})
+                .to({}, toSubject)
+                .error({}, errorSubject)
                 .build()
         val fromTo1 = FromTo.create(action)
         assertEquals(1, fromTo1.actions.size)
 
-        val actions = listOf(FtAction.Builder<Int>()
-                .from(Observable.just(1))
-                .to(toSubject, {})
-                .error(errorSubject, {})
-                .build(),
+        val actions = listOf(
                 FtAction.Builder<Int>()
                         .from(Observable.just(1))
-                        .to(toSubject, {})
-                        .error(errorSubject, {})
+                        .to({}, toSubject)
+                        .error({}, errorSubject)
+                        .build(),
+                FtAction.Builder<Int>()
+                        .from(Observable.just(1))
+                        .to({}, toSubject)
+                        .error({}, errorSubject)
                         .build())
         val fromTo2 = FromTo.create(actions)
         assertEquals(actions.size, fromTo2.actions.size)
@@ -51,14 +52,14 @@ class FromToTest {
 
         val action1 = FtAction.Builder<Int>()
                 .from(Observable.just(1).subscribeOn(Schedulers.newThread()))
-                .to(toSubject, { assertEquals(1, it); count.countDown() })
-                .error(errorSubject, {})
+                .to({ assertEquals(1, it); count.countDown() }, toSubject)
+                .error({}, errorSubject)
                 .build()
 
         val action2 = FtAction.Builder<Int>()
                 .from(Observable.just(1).subscribeOn(Schedulers.newThread()))
-                .to(toSubject, { assertEquals(1, it); count.countDown() })
-                .error(errorSubject, {})
+                .to({ assertEquals(1, it); count.countDown() }, toSubject)
+                .error({}, errorSubject)
                 .build()
 
         val fromTo = FromTo.create(action1, action2)
@@ -78,8 +79,8 @@ class FromToTest {
 
         val action = FtAction.Builder<Int>()
                 .from(Observable.just(1).subscribeOn(Schedulers.newThread()))
-                .to(toSubject, { assertEquals(1, it); count.countDown() })
-                .finish(finishSubject, { count.countDown() })
+                .to({ assertEquals(1, it); count.countDown() }, toSubject)
+                .finish({ count.countDown() }, finishSubject)
                 .build()
 
         val fromTo = FromTo.create(action)
@@ -102,8 +103,8 @@ class FromToTest {
                     val i: Int? = null
                     it.onNext(i!!)
                 }.subscribeOn(Schedulers.newThread()))
-                .to(toSubject, {})
-                .error(errorSubject, { count.countDown() })
+                .to({}, toSubject)
+                .error({ count.countDown() }, errorSubject)
                 .build()
 
         val fromTo = FromTo.create(action)

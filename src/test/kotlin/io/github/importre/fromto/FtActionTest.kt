@@ -12,8 +12,8 @@ class FtActionTest {
         assertFalse {
             val action = FtAction.Builder<Int>()
                     .from(Observable.just(1))
-                    .to(PublishSubject.create<Int>(), {})
-                    .error(PublishSubject.create<Throwable>(), {})
+                    .to({}, PublishSubject.create<Int>())
+                    .error({}, PublishSubject.create<Throwable>())
                     .build()
             action.isRunning()
         }
@@ -21,7 +21,7 @@ class FtActionTest {
         assertFalse {
             val action = FtAction.Builder<Int>()
                     .from(Observable.just(1))
-                    .to(PublishSubject.create<Int>(), {})
+                    .to({}, PublishSubject.create<Int>())
                     .build()
             action.isRunning()
         }
@@ -30,8 +30,8 @@ class FtActionTest {
     @Test(expected = NullPointerException::class)
     fun ShouldNotBeInitializedWithoutFrom() {
         FtAction.Builder<Int>()
-                .to(PublishSubject.create<Int>(), {})
-                .error(PublishSubject.create<Throwable>(), {})
+                .to({}, PublishSubject.create<Int>())
+                .error({}, PublishSubject.create<Throwable>())
                 .build()
     }
 
@@ -39,7 +39,7 @@ class FtActionTest {
     fun ShouldNotBeInitializedWithoutTo() {
         FtAction.Builder<Int>()
                 .from(Observable.just(1))
-                .error(PublishSubject.create<Throwable>(), {})
+                .error({}, PublishSubject.create<Throwable>())
                 .build()
     }
 }
