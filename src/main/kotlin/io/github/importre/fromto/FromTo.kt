@@ -1,7 +1,7 @@
 package io.github.importre.fromto
 
 /**
- * A [FromTo] is a unit of [FtAction]s based on [RxJava](https://goo.gl/8Sf6OZ).
+ * A [FromTo] is an unit of [FtAction]s based on [RxJava](https://goo.gl/8Sf6OZ).
  *
  * See [readme.md](https://github.com/importre/fromto/blob/master/readme.md).
  *

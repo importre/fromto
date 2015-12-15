@@ -5,7 +5,7 @@ import rx.Subscription
 import java.util.concurrent.atomic.AtomicBoolean
 
 /**
- * A [FtAction] is wrapper of `rx.Observable` and have `running` state.
+ * An [FtAction] is wrapper of `rx.Observable` and have `running` state.
  *
  * @author [Jaewe Heo](http://import.re)
  *
@@ -111,7 +111,7 @@ public class FtAction<T> private constructor() {
         }
 
         /**
-         * Constructs a [FtAction] with the current attributes.
+         * Constructs an [FtAction] with the current attributes.
          *
          * @return [FtAction]
          */
