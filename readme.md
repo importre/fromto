@@ -5,6 +5,8 @@
 
 **FromTo** is a helper library that makes it simple to handle asynchronous actions for Android and Java/Kotlin.
 
+This library is written in [Kotlin][kotlin]. But it's interoperable with Java.
+
 
 ## Installation
 
@@ -77,7 +79,7 @@ But I realized that there are still boilerplate codes. So I implemented **FromTo
 ## How do I use it in detail?
 
 Basically `FromTo` has an `FtAction` or more.  
-Given some actions, `FromTo` can execute all actions asynchronously. And `FromTo` notifies corresponding view of the `loading` state.
+Given some actions, `FromTo` can execute all actions asynchronously. And `FromTo` notifies corresponding view of the `loading` state via `FtView` interface.
 
 > - Synchronous or asynchronous action
 >   - Actually it's up to observable's schedule.
@@ -112,3 +114,4 @@ Apache 2.0 © [Jaewe Heo](http://import.re)
 [example]: https://github.com/importre/fromto-example
 [bintray-badge]: https://api.bintray.com/packages/importre/maven/fromto/images/download.svg
 [bintray-url]: https://bintray.com/importre/maven/fromto/_latestVersion
+[kotlin]: http://kotlinlang.org/
