@@ -35,7 +35,7 @@ public class FromTo private constructor(val actions: List<FtAction<*>>) {
         fun create(actions: List<FtAction<*>>): FromTo = FromTo(actions)
     }
 
-    var view: FtView? = null
+    internal var view: FtView? = null
         private set
 
     /**

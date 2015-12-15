@@ -2,12 +2,10 @@ package io.github.importre.fromto
 
 import rx.Observable
 import rx.Subscription
-import rx.subjects.BehaviorSubject
-import rx.subjects.Subject
 import java.util.concurrent.atomic.AtomicBoolean
 
 /**
- * A [FtAction] executes `rx.Observable` and notifies `rx.Subject` of the result.
+ * A [FtAction] is wrapper of `rx.Observable` and have `running` state.
  *
  * @author [Jaewe Heo](http://import.re)
  *
@@ -17,17 +15,12 @@ public class FtAction<T> private constructor() {
 
     private lateinit var fromObservable: Observable<T>
 
-    private lateinit var toSubject: Subject<FtResult<T>, FtResult<T>>
-    private lateinit var dataView: ((FtResult<T>) -> Unit)
-
-    private var errorSubject: Subject<Throwable, Throwable>? = null
+    private var dataView: ((T) -> Unit)? = null
     private var errorView: ((Throwable) -> Unit)? = null
+    private var doneView: (() -> Unit)? = null
 
     private var fromSubscription: Subscription? = null
-    private var toSubscription: Subscription? = null
-    private var errorSubscription: Subscription? = null
 
-    private var complete: Boolean = false
     private var running: AtomicBoolean = AtomicBoolean(false)
         private set
 
@@ -36,48 +29,29 @@ public class FtAction<T> private constructor() {
      */
     public fun isRunning() = running.get()
 
-    private fun init() {
-        toSubscription?.unsubscribe()
-        toSubscription = toSubject.subscribe({
-            dataView.invoke(it)
-        }, {
-            errorSubject?.onNext(it)
-        })
-
-        errorSubscription?.unsubscribe()
-        errorSubscription = errorSubject?.subscribe({
-            errorView?.invoke(it)
-        }, {
-            errorView?.invoke(it)
-        })
-    }
-
-    fun subscribe(fromTo: FromTo) {
+    internal fun subscribe(fromTo: FromTo) {
         fromSubscription?.unsubscribe()
         fromTo.run { if (!isLoading()) view?.showLoading(true) }
         running.set(true)
 
         fromSubscription = fromObservable.subscribe({
-            toSubject.onNext(FtResult(it, false))
+            dataView?.invoke(it)
         }, {
-            errorSubject?.onError(it)
+            errorView?.invoke(it)
             finished(fromTo)
         }, {
-            if (complete) {
-                toSubject.onNext(FtResult(null, true))
-            }
+            doneView?.invoke()
             finished(fromTo)
         })
     }
 
     private fun finished(fromTo: FromTo) {
         running.set(false)
-        fromTo.run { if (isLoading()) view?.showLoading(false) }
+        fromTo.run { if (!isLoading()) view?.showLoading(false) }
     }
 
-    fun unsubscribe(fromTo: FromTo) {
+    internal fun unsubscribe(fromTo: FromTo) {
         fromSubscription?.unsubscribe()
-        toSubscription?.unsubscribe()
         finished(fromTo)
     }
 
@@ -86,12 +60,10 @@ public class FtAction<T> private constructor() {
      */
     public class Builder<T>() {
 
-        private var complete: Boolean = false
-        private var dataView: ((FtResult<T>) -> Unit)? = null
+        private var dataView: ((T) -> Unit)? = null
         private var errorView: ((Throwable) -> Unit)? = null
+        private var doneView: (() -> Unit)? = null
         private var fromObservable: Observable<T>? = null
-        private var toSubject: Subject<FtResult<T>, FtResult<T>>? = null
-        private var errorSubject: Subject<Throwable, Throwable>? = null
 
         /**
          * Sets an observable that will be subscribed by [FromTo].
@@ -106,39 +78,35 @@ public class FtAction<T> private constructor() {
         }
 
         /**
-         * Sets subject and view of `to`. It is must be called.
-         * [view] will be invoked with the result via [subject].`onNext()`
-         * If you want to receive `onComplete`, set [complete] to `true`.
-         * Then view will be invoked with `null`
+         * Sets view of `to`.
          *
          * @param view
-         * @param subject
-         * @param complete
          * @return [FtAction.Builder]
          */
-        public fun to(view: ((FtResult<T>) -> Unit),
-                      subject: Subject<FtResult<T>, FtResult<T>> = BehaviorSubject.create(),
-                      complete: Boolean = false)
-                : Builder<T> {
-            this.toSubject = subject
+        public fun to(view: (T) -> Unit): Builder<T> {
             this.dataView = view
-            this.complete = complete
             return this
         }
 
         /**
-         * Sets subject and view of `error`.
-         * [view] will be invoked with the result via [subject].`onNext()`
+         * Sets view of `error`.
          *
          * @param view
-         * @param subject
          * @return [FtAction.Builder]
          */
-        public fun error(view: ((Throwable) -> Unit),
-                         subject: Subject<Throwable, Throwable> = BehaviorSubject.create())
-                : Builder<T> {
-            this.errorSubject = subject
+        public fun error(view: (Throwable) -> Unit): Builder<T> {
             this.errorView = view
+            return this
+        }
+
+        /**
+         * Sets view of `done`.
+         *
+         * @param view
+         * @return [FtAction.Builder]
+         */
+        public fun done(view: () -> Unit): Builder<T> {
+            this.doneView = view
             return this
         }
 
@@ -156,22 +124,9 @@ public class FtAction<T> private constructor() {
                 action.fromObservable = fromObservable as Observable<T>
             }
 
-            if (dataView == null) {
-                throw NullPointerException("[FROMTO] `dataView` is null")
-            } else {
-                action.dataView = dataView as (FtResult<T>) -> Unit
-            }
-
-            if (toSubject == null) {
-                throw NullPointerException("[FROMTO] `to` subject is null")
-            } else {
-                action.toSubject = toSubject as Subject<FtResult<T>, FtResult<T>>
-            }
-
-            action.complete = complete
+            action.dataView = dataView
             action.errorView = errorView
-            action.errorSubject = errorSubject as? Subject<Throwable, Throwable>
-            action.init()
+            action.doneView = doneView
             return action
         }
     }
