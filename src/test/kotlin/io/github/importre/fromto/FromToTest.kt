@@ -47,7 +47,11 @@ class FromToTest {
 
         val action1 = FtAction.Builder<Int>()
                 .from(Observable.just(1).subscribeOn(Schedulers.newThread()))
-                .to { assertEquals(1, it); count.countDown() }
+                .to(object : FtAction.Result<Int> {
+                    override fun call(result: Int) {
+                        assertEquals(1, result); count.countDown()
+                    }
+                })
                 .error {}
                 .build()
 
