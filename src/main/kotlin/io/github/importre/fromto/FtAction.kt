@@ -89,6 +89,17 @@ public class FtAction<T> private constructor() {
         }
 
         /**
+         * Sets view of `to`.
+         *
+         * @param view
+         * @return [FtAction.Builder]
+         */
+        public fun to(view: Result<T>): Builder<T> {
+            this.dataView = { view.call(it) }
+            return this
+        }
+
+        /**
          * Sets view of `error`.
          *
          * @param view
@@ -100,6 +111,17 @@ public class FtAction<T> private constructor() {
         }
 
         /**
+         * Sets view of `error`.
+         *
+         * @param view
+         * @return [FtAction.Builder]
+         */
+        public fun error(view: Error): Builder<T> {
+            this.errorView = { view.call(it) }
+            return this
+        }
+
+        /**
          * Sets view of `done`.
          *
          * @param view
@@ -107,6 +129,17 @@ public class FtAction<T> private constructor() {
          */
         public fun done(view: () -> Unit): Builder<T> {
             this.doneView = view
+            return this
+        }
+
+        /**
+         * Sets view of `done`.
+         *
+         * @param view
+         * @return [FtAction.Builder]
+         */
+        public fun done(view: Done): Builder<T> {
+            this.doneView = { view.call() }
             return this
         }
 
@@ -129,5 +162,39 @@ public class FtAction<T> private constructor() {
             action.doneView = doneView
             return action
         }
+    }
+
+    /**
+     * Event listener interface for [FtAction]&#39;s result.
+     */
+    interface Result<T> {
+        /**
+         * Invoked if [FtAction.fromObservable]&#39;s `onNext` is called.
+         *
+         * @param result
+         */
+        fun call(result: T)
+    }
+
+    /**
+     * Event listener interface for [FtAction]&#39;s error.
+     */
+    interface Error {
+        /**
+         * Invoked if [FtAction.fromObservable]&#39;s `onError` is called.
+         *
+         * @param error
+         */
+        fun call(error: Throwable)
+    }
+
+    /**
+     * Event listener interface for [FtAction]&#39;s done.
+     */
+    interface Done {
+        /**
+         * Invoked if [FtAction.fromObservable]&#39;s `onCompleted` is called.
+         */
+        fun call()
     }
 }
