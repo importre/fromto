@@ -55,6 +55,8 @@ Given some actions, `FromTo` can execute all actions asynchronously. And `FromTo
 >   - Actually it's up to observable's schedule as you know.
 > - The state is `true` if one of actions is working.
 
+See details in Kotlin example
+
 ### [Example][example]
 
 ![fromto-example](https://goo.gl/svxxDD)
@@ -62,6 +64,7 @@ Given some actions, `FromTo` can execute all actions asynchronously. And `FromTo
 See examples.
 
 - [Kotlin example][kotlin-example]
+  - Check comments :sunglasses:
 - [Java example][java-example]
 
 ## Test
