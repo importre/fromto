@@ -22,7 +22,7 @@ apply plugin: 'org.jetbrains.dokka'
 apply plugin: 'signing'
 
 def FromToGroupId = 'io.github.importre'
-def FromToVersion = '0.5.0'
+def FromToVersion = '0.5.1'
 def FromToArtifact = 'fromto'
 def FromToUrl = 'https://github.com/importre/fromto'
 
