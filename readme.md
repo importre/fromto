@@ -75,24 +75,26 @@ I know and you know some solutions.
   - See `Lifecycle` section of [this post][cache].
 
 I think that `RxJava` is the best solution because it's very simple and convenient.  
-But I realized that there are still boilerplate codes. So I implemented **FromTo**.
+But I realized that there are still boilerplate codes. So I implemented **FromTo** simply.
 
 
 ## How do I use it in detail?
 
 Basically `FromTo` has an `FtAction` or more.  
+(You can think that `FtAction` is a wrapper class of `rx.Observable`.)  
 Given some actions, `FromTo` can execute all actions asynchronously. And `FromTo` notifies corresponding view of the `loading` state via `FtView` interface.
 
 > - Synchronous or asynchronous action
 >   - Actually it's up to observable's schedule.
 > - The state is `true` if one of actions is working.
 
-See [this example][example].
+### [fromto-example][example]
+See examples.
 
+![fromto-example](https://goo.gl/svxxDD)
 
-
-
-
+- [Kotlin example][kotlin-example]
+- [Java example][java-example]
 
 
 ## Test
@@ -117,3 +119,5 @@ Apache 2.0 © [Jaewe Heo](http://import.re)
 [bintray-badge]: https://api.bintray.com/packages/importre/maven/fromto/images/download.svg
 [bintray-url]: https://bintray.com/importre/maven/fromto/_latestVersion
 [kotlin]: http://kotlinlang.org/
+[kotlin-example]: https://goo.gl/YQJ8YK
+[java-example]: https://goo.gl/RRF54v
