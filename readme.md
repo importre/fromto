@@ -18,7 +18,7 @@ repositories {
 }
 
 dependencies {
-    compile 'io.github.importre:fromto:0.5.0'
+    compile 'io.github.importre:fromto:<version>'
 }
 ```
 
