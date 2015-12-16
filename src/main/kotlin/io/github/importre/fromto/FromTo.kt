@@ -1,5 +1,7 @@
 package io.github.importre.fromto
 
+import java.util.*
+
 /**
  * A [FromTo] is an unit of [FtAction]s based on [RxJava](https://goo.gl/8Sf6OZ).
  *
@@ -10,7 +12,7 @@ package io.github.importre.fromto
  * @property actions [FtAction] list.
  * @property view interface of a view related with [FromTo].
  */
-public class FromTo private constructor(val actions: List<FtAction<*>>) {
+public class FromTo private constructor(val actions: ArrayList<FtAction<*>>) {
 
     /**
      * @see [FromTo]
@@ -23,7 +25,7 @@ public class FromTo private constructor(val actions: List<FtAction<*>>) {
          */
         @JvmStatic
         fun create(vararg actions: FtAction<*>): FromTo {
-            return FromTo(actions.toList())
+            return FromTo(actions.toArrayList())
         }
 
         /**
@@ -32,7 +34,9 @@ public class FromTo private constructor(val actions: List<FtAction<*>>) {
          * @param actions [FtAction]s as [List]
          */
         @JvmStatic
-        fun create(actions: List<FtAction<*>>): FromTo = FromTo(actions)
+        fun create(actions: List<FtAction<*>>): FromTo {
+            return FromTo(actions.toArrayList())
+        }
     }
 
     internal var view: FtView? = null
@@ -49,10 +53,24 @@ public class FromTo private constructor(val actions: List<FtAction<*>>) {
     /**
      * Executes(Subscribes) [actions].
      */
-    public fun execute() {
-        if (!isLoading()) {
-            actions.forEach { it.subscribe(this) }
+    @JvmOverloads
+    public fun execute(actions: List<FtAction<*>> = listOf()) {
+        if (actions.isNotEmpty()) {
+            actions.forEach { it.unsubscribe(this) }
+            this.actions.clear()
+            this.actions.addAll(actions)
         }
+
+        if (!isLoading()) {
+            this.actions.forEach { it.subscribe(this) }
+        }
+    }
+
+    /**
+     * Executes(Subscribes) [actions].
+     */
+    public fun execute(vararg actions: FtAction<*>) {
+        return execute(actions.toList())
     }
 
     /**
