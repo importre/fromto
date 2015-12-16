@@ -47,6 +47,29 @@ fromTo.attach(view).execute()
 fromTo.detach()
 ```
 
+Basically `FromTo` has an `FtAction` or more.  
+(You can think that `FtAction` is a wrapper class of `rx.Observable`.)  
+Given some actions, `FromTo` can execute all actions asynchronously. And `FromTo` notifies corresponding view of the `loading` state via `FtView` interface.
+
+> - Synchronous or asynchronous action
+>   - Actually it's up to observable's schedule as you know.
+> - The state is `true` if one of actions is working.
+
+### [Example][example]
+
+![fromto-example](https://goo.gl/svxxDD)
+
+See examples.
+
+- [Kotlin example][kotlin-example]
+- [Java example][java-example]
+
+## Test
+
+```sh
+./gradlew test
+```
+
 
 ## Why should I use it?
 
@@ -74,34 +97,8 @@ I know and you know some solutions.
   - `Observable`'s `cache()` is a blessing. :tada:
   - See `Lifecycle` section of [this post][cache].
 
-I think that `RxJava` is the best solution because it's very simple and convenient.  
+I thought that `RxJava` is the best solution because it's very simple and convenient.  
 But I realized that there are still boilerplate codes. So I implemented **FromTo** simply.
-
-
-## How do I use it in detail?
-
-Basically `FromTo` has an `FtAction` or more.  
-(You can think that `FtAction` is a wrapper class of `rx.Observable`.)  
-Given some actions, `FromTo` can execute all actions asynchronously. And `FromTo` notifies corresponding view of the `loading` state via `FtView` interface.
-
-> - Synchronous or asynchronous action
->   - Actually it's up to observable's schedule.
-> - The state is `true` if one of actions is working.
-
-### [fromto-example][example]
-See examples.
-
-![fromto-example](https://goo.gl/svxxDD)
-
-- [Kotlin example][kotlin-example]
-- [Java example][java-example]
-
-
-## Test
-
-```sh
-./gradlew test
-```
 
 
 ## License
