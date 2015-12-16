@@ -41,6 +41,8 @@ val fromTo = FromTo.create(action1/*, more if you want */)
 // attach `view`(FtView) related with fromTo's lifecycle
 fromTo.attach(view).execute()
 
+// you can know `loading` state via `view`
+
 // detach when `view` is destroyed
 fromTo.detach()
 ```
@@ -49,26 +51,26 @@ fromTo.detach()
 ## Why should I use it?
 
 **FromTo** is useful when developing an app, which has lifecycle by itself.  
-In Android world, for example, An Activity(or a Fragment) can take some heavy tasks such as Network, DB, File I/O and/or something.
+In Android world, for example, An `Activity`(or a `Fragment`) can take some heavy tasks such as Network, DB, File I/O and/or something.
 
 Assume that you are in two conditions.
 
 - two tasks are working asynchronously,
 - you have to show `ProgressBar` if started, hide it if finished.
 
-In this case, how do you resolve this problem if your screen is rotated?  
+In these cases, how do you resolve this problem if your screen is rotated?  
 I know and you know some solutions.  
 
-1. Do nothing. :trollface:
+- Do nothing. :trollface:
   - Easy but bad UX. Everything will be always reloaded.
-1. Prevent recreating activity.
+- Prevent recreating activity.
   - Using `android:configChanges` of &lt;[activity][activity-element]&gt; element. It's very easy but the layout is not flexible(on tablet especially).
-1. Use `AsyncTask`, `Handler` or whatever. And [Store/Restore data][recreating-activity]
+- Use `AsyncTask`, `Handler` or whatever. And [Store/Restore data][recreating-activity]
   - Inconvenient, verbose :sob:
-1. Set `Fragment.setRetainInstance(true)`
-  - The fragment is not recreated/destroyed. So the fragment can store you data although parent activity is rotated.
+- Set `Fragment.setRetainInstance(true)`
+  - The fragment is not recreated/destroyed. So the fragment can store what you want although parent activity is recreated.
   - It's good. But some guys wouldn't like to use Fragment.
-1. Use [RxJava]
+- **Use [RxJava]**
   - `Observable`'s `cache()` is a blessing. :tada:
   - See `Lifecycle` section of [this post][cache].
 
