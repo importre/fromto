@@ -3,7 +3,7 @@
 [![Download][bintray-badge]][bintray-url]
 
 
-**FromTo** is a helper library that makes it simple to handle asynchronous actions for Android and Java/Kotlin.
+**FromTo** is a helper library that makes it simple to handle asynchronous actions with views for Android and Java/Kotlin.
 
 This library is written in [Kotlin][kotlin]. But it's interoperable with Java.
 
