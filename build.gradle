@@ -73,7 +73,7 @@ bintray {
             vcsTag = FromToVersion
             gpg {
                 sign = true
-                passphrase = project['signing.password']
+                passphrase = project.hasProperty("passphrase") ? project.passphrase : ""
             }
         }
     }
