@@ -1,6 +1,6 @@
 # FromTo
 
-[![Download][bintray-badge]][bintray-url]
+[![Download][bintray-badge]][bintray-url] [![Build Status][travisci-badge]][fromto]
 
 
 **FromTo** is a helper library that makes it simple to handle asynchronous actions with views for Android and Java/Kotlin.
@@ -121,3 +121,5 @@ Apache 2.0 © [Jaewe Heo](http://import.re)
 [kotlin]: http://kotlinlang.org/
 [kotlin-example]: https://goo.gl/YQJ8YK
 [java-example]: https://goo.gl/RRF54v
+[travisci-badge]: https://travis-ci.org/importre/fromto.svg
+[fromto]: https://travis-ci.org/importre/fromto
