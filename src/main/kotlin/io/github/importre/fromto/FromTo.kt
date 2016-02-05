@@ -25,7 +25,7 @@ public class FromTo private constructor(val actions: ArrayList<FtAction<*>>) {
          */
         @JvmStatic
         fun create(vararg actions: FtAction<*>): FromTo {
-            return FromTo(actions.toArrayList())
+            return FromTo(actions.toCollection(ArrayList<FtAction<*>>()))
         }
 
         /**
@@ -35,7 +35,7 @@ public class FromTo private constructor(val actions: ArrayList<FtAction<*>>) {
          */
         @JvmStatic
         fun create(actions: List<FtAction<*>>): FromTo {
-            return FromTo(actions.toArrayList())
+            return FromTo(actions.toCollection(ArrayList<FtAction<*>>()))
         }
     }
 
